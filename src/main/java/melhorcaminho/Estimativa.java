@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+@Setter
 @Getter
 @Builder
 public class Estimativa {
@@ -21,6 +22,10 @@ public class Estimativa {
 
     public boolean aberta() {
         return this.status == Status.aberto;
+    }
+
+    public void fecha() {
+        this.status = Status.fechado;
     }
 
     public enum Status {

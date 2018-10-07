@@ -6,13 +6,10 @@ import java.util.stream.Collectors;
 public class MelhorCaminho {
 
     private List<String> locais;
-    private Estimativa[][] vizinhanca;
     private Map<String, Set<Estimativa>> estimativasPorLocal = new HashMap<>();
 
     public MelhorCaminho(String... locais) {
         this.locais = Arrays.asList(locais);
-        int tamanho = this.locais.size();
-        this.vizinhanca = new Estimativa[tamanho][tamanho];
     }
 
     public void vizinhoMutuos(String origem, String destino, int custo) {
@@ -25,32 +22,53 @@ public class MelhorCaminho {
 
     public int dePara(String origem, String destino) {
 
-        // BUSCANDO MENOR CUSTO ABERTO EM A
-        Comparator<? super Estimativa> porCusto = Comparator.comparing(Estimativa::getCusto);
-        Estimativa estimativaMenorCusto = estimativasPorLocal.get(origem).stream()
+        while(temEstimativasAbertas(origem)) {
+            Comparator<? super Estimativa> porCusto = Comparator.comparing(Estimativa::getCusto);
+
+            estimativasPorLocal.get(origem).stream()
+                    .filter(Estimativa::aberta)
+                    .sorted(porCusto)
+                    .forEach(estimativa -> {
+                        validaCusto(origem, estimativa);
+                        estimativa.fecha();
+                    });
+        }
+
+        return buscaEstimativa(origem, destino).get().getCusto();
+    }
+
+    private boolean temEstimativasAbertas(String origem) {
+        return estimativasPorLocal.get(origem).stream()
                 .filter(Estimativa::aberta)
-                .min(porCusto)
-                .get();
+                .findAny()
+                .isPresent();
+    }
 
-
+    private void validaCusto(String origem, Estimativa estimativaMenorCusto) {
         // BUSCANDO DESTINOS LIGADOS AO LOCAL DE MENOR CUSTO
         Set<Estimativa> estimativasB = estimativasPorLocal.get(estimativaMenorCusto.getDestino())
                 .stream()
                 .filter(estimativa -> estimativa.getDestino() != origem)
                 .collect(Collectors.toSet());
 
+        // VALIDANDO CUSTO DE DESTINOS LIGAGOS AO LOCAL DE MENOR CUSTO
         estimativasB.stream()
                 .forEach(estimativa -> {
                     Optional<Estimativa> estimativaNaOrigem = buscaEstimativa(origem, estimativa.getDestino());
+                    int custoTotal = estimativaMenorCusto.getCusto() + estimativa.getCusto();
                     if (!estimativaNaOrigem.isPresent()) {
                         Estimativa estimativaNova = criaEstimativa(estimativaMenorCusto.getDestino(),
                                 estimativa.getDestino(),
-                                estimativaMenorCusto.getCusto() + estimativa.getCusto());
+                                custoTotal);
 
                         estimativasPorLocal.get(origem).add(estimativaNova);
-                    }});
-
-        return buscaEstimativa(origem, destino).get().getCusto();
+                    } else {
+                        if (estimativaNaOrigem.get().getCusto() > custoTotal) {
+                            estimativaNaOrigem.get().setPrecedente(estimativaMenorCusto.getDestino());
+                            estimativaNaOrigem.get().setCusto(custoTotal);
+                        }
+                    }
+                });
     }
 
     private Optional<Estimativa> buscaEstimativa(String origem, String destino) {
