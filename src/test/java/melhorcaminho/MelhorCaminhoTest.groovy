@@ -6,7 +6,7 @@ class MelhorCaminhoTest extends Specification {
 
     def "melhor caminho de A para B"() {
         given:
-        MelhorCaminho melhorCaminho = new MelhorCaminho("A", "B")
+        MelhorCaminho melhorCaminho = new MelhorCaminho()
         melhorCaminho.vizinhoMutuos("A", "B", 5)
 
         when:
@@ -18,7 +18,7 @@ class MelhorCaminhoTest extends Specification {
 
     def "melhor caminho de A para C"() {
         given:
-        MelhorCaminho melhorCaminho = new MelhorCaminho("A", "B", "C")
+        MelhorCaminho melhorCaminho = new MelhorCaminho()
         melhorCaminho.vizinhoMutuos("A", "B", 5)
         melhorCaminho.vizinhoMutuos("B", "C", 4)
 
@@ -31,7 +31,7 @@ class MelhorCaminhoTest extends Specification {
 
     def "melhor caminho de A para C com dois custos diferentes"() {
         given:
-        MelhorCaminho melhorCaminho = new MelhorCaminho("A", "B", "C")
+        MelhorCaminho melhorCaminho = new MelhorCaminho()
         melhorCaminho.vizinhoMutuos("A", "B", 5)
         melhorCaminho.vizinhoMutuos("A", "C", 15)
         melhorCaminho.vizinhoMutuos("B", "C", 4)
@@ -45,7 +45,7 @@ class MelhorCaminhoTest extends Specification {
 
     def "melhor caminho de A para D"() {
         given:
-        MelhorCaminho melhorCaminho = new MelhorCaminho("A", "B", "C", "D")
+        MelhorCaminho melhorCaminho = new MelhorCaminho()
         melhorCaminho.vizinhoMutuos("A", "B", 5)
         melhorCaminho.vizinhoMutuos("B", "C", 4)
         melhorCaminho.vizinhoMutuos("C", "D", 3)
@@ -59,7 +59,7 @@ class MelhorCaminhoTest extends Specification {
 
     def "melhor caminho de A para D com dois custos diferentes"() {
         given:
-        MelhorCaminho melhorCaminho = new MelhorCaminho("A", "B", "C", "D")
+        MelhorCaminho melhorCaminho = new MelhorCaminho()
         melhorCaminho.vizinhoMutuos("A", "B", 5)
         melhorCaminho.vizinhoMutuos("B", "C", 4)
         melhorCaminho.vizinhoMutuos("B", "D", 3)
@@ -74,7 +74,7 @@ class MelhorCaminhoTest extends Specification {
 
     def "melhor caminho de A para E"() {
         given:
-        MelhorCaminho melhorCaminho = new MelhorCaminho("A", "B", "C", "D", "E")
+        MelhorCaminho melhorCaminho = new MelhorCaminho()
         melhorCaminho.vizinhoMutuos("A", "B", 5)
         melhorCaminho.vizinhoMutuos("B", "C", 7)
         melhorCaminho.vizinhoMutuos("B", "D", 3)
@@ -91,7 +91,7 @@ class MelhorCaminhoTest extends Specification {
 
     def "melhor caminho de A para F"() {
         given:
-        MelhorCaminho melhorCaminho = new MelhorCaminho("A", "B", "C", "D", "E")
+        MelhorCaminho melhorCaminho = new MelhorCaminho()
         melhorCaminho.vizinhoMutuos("A", "B", 5)
         melhorCaminho.vizinhoMutuos("B", "C", 7)
         melhorCaminho.vizinhoMutuos("B", "D", 3)
@@ -108,7 +108,7 @@ class MelhorCaminhoTest extends Specification {
 
     def "melhor caminho de A para A"() {
         given:
-        MelhorCaminho melhorCaminho = new MelhorCaminho("A", "B", "C", "D", "E")
+        MelhorCaminho melhorCaminho = new MelhorCaminho()
         melhorCaminho.vizinhoMutuos("A", "B", 5)
         melhorCaminho.vizinhoMutuos("B", "C", 7)
         melhorCaminho.vizinhoMutuos("B", "D", 3)
@@ -121,5 +121,18 @@ class MelhorCaminhoTest extends Specification {
 
         then:
         custo == 0
+    }
+
+    def "melhor caminho de A para ponto inalcansavel"() {
+        given:
+        MelhorCaminho melhorCaminho = new MelhorCaminho()
+        melhorCaminho.vizinhoMutuos("A", "B", 5)
+        melhorCaminho.vizinhoMutuos("D", "F", 8)
+
+        when:
+        int custo = melhorCaminho.dePara("A", "F")
+
+        then:
+        custo == -1
     }
 }

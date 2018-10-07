@@ -4,6 +4,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class MelhorCaminho {
+    private static final Estimativa DESTINO_INALCANSAVEL = Estimativa.builder()
+            .custo(-1)
+            .build();
 
     private Map<String, Set<Estimativa>> estimativasPorLocal = new HashMap<>();
 
@@ -34,7 +37,7 @@ public class MelhorCaminho {
                     });
         }
 
-        return buscaEstimativa(origem, destino).get().getCusto();
+        return buscaEstimativa(origem, destino).orElse(DESTINO_INALCANSAVEL).getCusto();
     }
 
     private boolean temEstimativasAbertas(String origem) {
