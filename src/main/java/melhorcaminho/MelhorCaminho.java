@@ -4,9 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class MelhorCaminho {
-    private static final Estimativa DESTINO_INALCANSAVEL = Estimativa.builder()
-            .custo(-1)
-            .build();
+    private static final Estimativa DESTINO_INALCANSAVEL = Estimativa.builder().custo(-1).build();
 
     private Map<String, Set<Estimativa>> estimativasPorLocal = new HashMap<>();
 
@@ -22,7 +20,6 @@ public class MelhorCaminho {
     }
 
     public int dePara(String origem, String destino) {
-
         if (origem.equals(destino)) return 0;
 
         while(temEstimativasAbertas(origem)) {
@@ -40,38 +37,41 @@ public class MelhorCaminho {
         return buscaEstimativa(origem, destino).orElse(DESTINO_INALCANSAVEL).getCusto();
     }
 
+    private void validaCusto(String origem, Estimativa estimativaDeNivelZero) {
+        Set<Estimativa> estimativasDeNivelUm = estimativasPorLocal.get(estimativaDeNivelZero.getDestino())
+                .stream()
+                .filter(estimativa -> estimativa.getDestino() != origem)
+                .collect(Collectors.toSet());
+
+        estimativasDeNivelUm.stream().forEach(estimativaDeNivelUm -> {
+            recalculaEstimativa(origem, estimativaDeNivelZero, estimativaDeNivelUm);
+        });
+    }
+
+    private void recalculaEstimativa(String origem, Estimativa estimativaDeNivelZero, Estimativa estimativaDeNivelUm) {
+        final Optional<Estimativa> estimativaNaOrigem = buscaEstimativa(origem, estimativaDeNivelUm.getDestino());
+
+        int custoTotal = estimativaDeNivelZero.getCusto() + estimativaDeNivelUm.getCusto();
+
+        if (estimativaNaOrigem.isPresent()) {
+            if (estimativaNaOrigem.get().getCusto() > custoTotal) {
+                estimativaNaOrigem.get().setPrecedente(estimativaDeNivelZero.getDestino());
+                estimativaNaOrigem.get().setCusto(custoTotal);
+            }
+        } else {
+            Estimativa estimativaNova = criaEstimativa(
+                    estimativaDeNivelZero.getDestino(),
+                    estimativaDeNivelUm.getDestino(),
+                    custoTotal);
+            estimativasPorLocal.get(origem).add(estimativaNova);
+        }
+    }
+
     private boolean temEstimativasAbertas(String origem) {
         return estimativasPorLocal.get(origem).stream()
                 .filter(Estimativa::aberta)
                 .findAny()
                 .isPresent();
-    }
-
-    private void validaCusto(String origem, Estimativa estimativaMenorCusto) {
-        // BUSCANDO DESTINOS LIGADOS AO LOCAL DE MENOR CUSTO
-        Set<Estimativa> estimativasB = estimativasPorLocal.get(estimativaMenorCusto.getDestino())
-                .stream()
-                .filter(estimativa -> estimativa.getDestino() != origem)
-                .collect(Collectors.toSet());
-
-        // VALIDANDO CUSTO DE DESTINOS LIGAGOS AO LOCAL DE MENOR CUSTO
-        estimativasB.stream()
-                .forEach(estimativa -> {
-                    Optional<Estimativa> estimativaNaOrigem = buscaEstimativa(origem, estimativa.getDestino());
-                    int custoTotal = estimativaMenorCusto.getCusto() + estimativa.getCusto();
-                    if (!estimativaNaOrigem.isPresent()) {
-                        Estimativa estimativaNova = criaEstimativa(estimativaMenorCusto.getDestino(),
-                                estimativa.getDestino(),
-                                custoTotal);
-
-                        estimativasPorLocal.get(origem).add(estimativaNova);
-                    } else {
-                        if (estimativaNaOrigem.get().getCusto() > custoTotal) {
-                            estimativaNaOrigem.get().setPrecedente(estimativaMenorCusto.getDestino());
-                            estimativaNaOrigem.get().setCusto(custoTotal);
-                        }
-                    }
-                });
     }
 
     private Optional<Estimativa> buscaEstimativa(String origem, String destino) {
