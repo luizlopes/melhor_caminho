@@ -105,4 +105,21 @@ class MelhorCaminhoTest extends Specification {
         then:
         custo == 16
     }
+
+    def "melhor caminho de A para A"() {
+        given:
+        MelhorCaminho melhorCaminho = new MelhorCaminho("A", "B", "C", "D", "E")
+        melhorCaminho.vizinhoMutuos("A", "B", 5)
+        melhorCaminho.vizinhoMutuos("B", "C", 7)
+        melhorCaminho.vizinhoMutuos("B", "D", 3)
+        melhorCaminho.vizinhoMutuos("C", "E", 4)
+        melhorCaminho.vizinhoMutuos("D", "E", 10)
+        melhorCaminho.vizinhoMutuos("D", "F", 8)
+
+        when:
+        int custo = melhorCaminho.dePara("A", "A")
+
+        then:
+        custo == 0
+    }
 }

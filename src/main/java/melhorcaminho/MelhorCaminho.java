@@ -5,11 +5,9 @@ import java.util.stream.Collectors;
 
 public class MelhorCaminho {
 
-    private List<String> locais;
     private Map<String, Set<Estimativa>> estimativasPorLocal = new HashMap<>();
 
-    public MelhorCaminho(String... locais) {
-        this.locais = Arrays.asList(locais);
+    public MelhorCaminho() {
     }
 
     public void vizinhoMutuos(String origem, String destino, int custo) {
@@ -21,6 +19,8 @@ public class MelhorCaminho {
     }
 
     public int dePara(String origem, String destino) {
+
+        if (origem.equals(destino)) return 0;
 
         while(temEstimativasAbertas(origem)) {
             Comparator<? super Estimativa> porCusto = Comparator.comparing(Estimativa::getCusto);
